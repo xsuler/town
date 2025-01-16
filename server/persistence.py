@@ -45,7 +45,6 @@ class Persistence:
 
     async def add_event(self, description):
         print(description)
-        raise Exception(description)
         self.events.append({
             "description": description,
             "timestamp": datetime.now().isoformat()

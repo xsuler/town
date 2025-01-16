@@ -33,7 +33,6 @@ class World:
             "position": position,
             "relationships": {}
         }
-        print(self.agents)
         await self.persistence.add_agent(
             name, role, background, personality, position[0], position[1], json.dumps(self.agents[name]["relationships"])
         )
@@ -96,7 +95,7 @@ class EventBoard:
         self.llm = LLMHandler()
         while True:
             context = await self.get_context()
-            prompt = f"Generate a dynamic and engaging event that fits within the following world context:\n{context}"
+            prompt = f"Generate a dynamic and engaging event that fits within the following world context:\n{context}, should reply a short description of the event"
             event = await self.llm.get_response(prompt, max_tokens=100, json=False)
             if event:
                 await self.world.broadcast_event.remote(event)
@@ -131,12 +130,12 @@ class Agent:
     async def decide_action(self):
         context = await self.get_context()
         prompt = self.generate_prompt(context)
-        print(prompt)
         action = await self.llm.get_action(prompt)
-        print(action)
         if isinstance(action, list):
             for a in action:
                 await self.execute_action(a)
+        else:
+            await self.execute_action(action)
 
     def generate_prompt(self, context):
         memory_snippet = self.get_memory_snippet()
